@@ -10,7 +10,6 @@ const cartTotal = document.querySelector('.cart-total');
 const cartContent = document.querySelector('.cart-content');
 const productsDOM = document.querySelector('.products-center');
 
-
 // cart 
 let cart = [];
 
@@ -43,7 +42,7 @@ class UI {
             <article class="product">
                 <div class="img-container">
                     <img src=${product.image} alt="product" class="product-img">
-                    <button class="bag-btn" data-id=${product.id}}>
+                    <button class="bag-btn" data-id=${product.id}>
                         <i class="fas fa-shopping-cart"></i>
                         add to bag
                     </button>
@@ -56,10 +55,29 @@ class UI {
         })
         productsDOM.innerHTML = result;
     }
+    getBagButtons() {
+        const buttons = [...document.querySelectorAll('.bag-btn')];
+        // console.log(buttons);
+        buttons.forEach(button => {
+            let id = button.dataset.id;
+            let inCart = cart.find(item => item.id === id);
+            if (inCart) {
+                button.innerText = "In Cart";
+                button.disabled = true
+            } else {
+                button.addEventListener('click', event => {
+                    event.target.innerText = "In Cart";
+                    event.target.disabled = true;
+                })
+            }
+        });
+    }
 }
 // local storage
 class Storage {
-
+    static saveProducts(products) {
+        localStorage.setItem("products", JSON.stringify(products));
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,5 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const products = new Products();
 
     // get all products
-    products.getProducts().then(products => ui.displayProducts(products));
-})
+    products.getProducts().then(products => {
+        ui.displayProducts(products);
+        Storage.saveProducts(products);
+    }).then(() => {
+        ui.getBagButtons();
+    });
+});
